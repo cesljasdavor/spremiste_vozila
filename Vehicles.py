@@ -15,6 +15,6 @@ class Vehicles:
 		out = ""
 		for vehicle in self.vehicles_list:
 			out += str(vehicle)
-			out += "\n"
+			out += "\n\n"
 		return out
 

@@ -115,42 +115,71 @@ class Problem:
 		for v in range(self.vehicle_count):
 			vehicle = Vehicle((v + 1), self.vehicle_lenghts[v], self.vehicle_types[v], self.departure_times[v], self.schedule_types[v], self.track_specifics[v])
 			self.vehicles.add(vehicle)
-		print("Added vehicles:")
-		print(self.vehicles)
+		#print("Added vehicles:")
+		#print(self.vehicles)
 
 
 		# Make Tracks
 		print("Creating tracks...\n")
+		t_id = 1
 		self.tracks = Tracks()
 		for t in range(self.track_count):
-
+			track = None
 			allowed_vehicles = []
 			for v in range(self.vehicle_count):
 				if self.track_specifics[v][t] == 1:
-					allowed_vehicles.append(v+1)
+					allowed_vehicles.append(v + 1)
 
 			if t < len(self.blocked_tracks):
-				track = Track(self.track_lenghts[t], allowed_vehicles, self.blocked_tracks[t])
+				track = Track(t_id, self.track_lenghts[t], allowed_vehicles, self.blocked_tracks[t])
 			else:
-				track = Track(self.track_lenghts[t], allowed_vehicles)
+				track = Track(t_id, self.track_lenghts[t], allowed_vehicles)
 			self.tracks.add(track)
-		print("Added tracks:")
-		print(self.tracks)
+			t_id += 1
+		#print("Added tracks:")
+		#print(self.tracks)
 
 
 	# Implements solution to the problem instance
 	def solve(self):
-		pass
+		vehicles_added = 0
+		for vehicle in self.vehicles.vehicles_list:
+			print("\nCurrent vehicle:")
+			print(vehicle)
+			for track in self.tracks.tracks_list:
+				print("\nCurrent track:")
+				print(track)
+				if track.addVehicle(vehicle) == True:
+					print("Vehicle added!")
+					vehicles_added += 1
+					print("\nTrack now looks like this:")
+					print(track)
+					break
+		print("Number of vehicles added:", vehicles_added)
+		if vehicles_added == self.vehicle_count:
+			print("All vehicles added successfully!")
+		else:
+			print("NOT ALL VEHICLES ADDED! TRY AGAIN!")
 
 	# Output solution to file "outfile"
 	def outputSolution(self, outfile):
-		pass
+		with open(outfile, "w") as f:
+			for track in self.tracks.tracks_list:
+				out = ""
+				for vehicle in track.vehicles_list:
+					out += str(vehicle.vehicle_id) + " "
+				f.write(out + "\n")
 
 
 def main():
 	
-	problem = Problem("./prob_instance_1")
+	problem = Problem("./instanca1.txt")
+	print("###########################################################")
 	problem.parseProblem()
+	print("###########################################################")
+	problem.solve()
+	print("###########################################################")
+	problem.outputSolution("./solution.txt")
 
 if __name__ == "__main__":
 	main()
