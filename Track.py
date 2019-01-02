@@ -68,6 +68,7 @@ class Track:
 			return False
 		return True
 
+	# Check if the departure time of vehicle is after the departure time of the last vehicle in this track
 	def checkTimings(self, vehicle):
 		if self.vehicle_count == 0:
 			return True
@@ -76,6 +77,24 @@ class Track:
 			return True
 		return False
 
+	# Check if vehicle's departure time is lower than the departure times of all the vehicles first in line in tracks that this track blocks
+	# Da li ovo uopce treba??
+	def checkBlockedTracks(self, vehicle, tracks):
+		if self.blocked_tracks == None:
+			return True
+		for btrack in self.blocked_tracks:
+			checked_track = tracks.getTrackById(btrack)
+			if checked_track.vehicle_count == 0:
+				continue
+			first_vehicle_dtime = checked_track.vehicles_list[0].departure_time
+			if vehicle.departure_time > first_vehicle_dtime:
+				return False
+		return False
+
+	#TODO: Add BLOCKED-BY check when adding: sta ako se doda vozilo u traku koja blokira neke druge, a te druge su prazne, 
+	# pa se tek nakon nekog vremena u te blokirane trake zeli dodati neko vozilo?
+
+	# Perform checks and add vehicle to track
 	def addVehicle(self, vehicle):
 		if self.checkType(vehicle) and self.checkIdAllowed(vehicle) and self.checkEnoughLen(vehicle) and self.checkAlreadyExisting(vehicle) and self.checkTimings(vehicle):
 			print("Adding vehicle with ID=" + str(vehicle.vehicle_id))
