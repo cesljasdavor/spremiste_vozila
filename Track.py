@@ -4,11 +4,11 @@ EMPTY_SPACE = 0.5
 
 class Track:
 
-	def __init__(self, t_id, t_len=None, veh_constraints=None, blocked_tracks=None):
+	def __init__(self, t_id, t_len=None, veh_constraints=None, tracks_blocked_by=None):
 		self.track_id = t_id
 		self.track_len = t_len
 		self.vehicle_constraints = veh_constraints
-		self.blocked_tracks = blocked_tracks
+		self.tracks_blocked_by = tracks_blocked_by
 		self.vehicles_list = []
 		self.vehicle_count = len(self.vehicles_list)
 
@@ -21,7 +21,7 @@ class Track:
 		out = "Track ID:" + str(self.track_id) + "\n"
 		out += "Track length:" + str(self.track_len) + "\n"
 		out += "Vehicle constraints:" + str(self.vehicle_constraints) + "\n"
-		out += "Blocks tracks:" + str(self.blocked_tracks) + "\n"
+		out += "Blocks tracks:" + str(self.tracks_blocked_by) + "\n"
 		out += "Vehicles list:" + str(self.vehicles_list) + "\n"
 		out += "Vehicle count:" + str(self.vehicle_count) + "\n"
 		out += "Assigned vehicle type:" + str(self.assigned_type) + "\n"
@@ -80,9 +80,9 @@ class Track:
 	# Check if vehicle's departure time is lower than the departure times of all the vehicles first in line in tracks that this track blocks
 	# Da li ovo uopce treba??
 	def checkBlockedTracks(self, vehicle, tracks):
-		if self.blocked_tracks == None:
+		if self.tracks_blocked_by == None:
 			return True
-		for btrack in self.blocked_tracks:
+		for btrack in self.tracks_blocked_by:
 			checked_track = tracks.getTrackById(btrack)
 			if checked_track.vehicle_count == 0:
 				continue
@@ -95,8 +95,8 @@ class Track:
 	# pa se tek nakon nekog vremena u te blokirane trake zeli dodati neko vozilo?
 
 	# Perform checks and add vehicle to track
-	def addVehicle(self, vehicle):
-		if self.checkType(vehicle) and self.checkIdAllowed(vehicle) and self.checkEnoughLen(vehicle) and self.checkAlreadyExisting(vehicle) and self.checkTimings(vehicle):
+	def addVehicle(self, vehicle, tracks):
+		if self.checkType(vehicle) and self.checkIdAllowed(vehicle) and self.checkEnoughLen(vehicle) and self.checkAlreadyExisting(vehicle) and self.checkTimings(vehicle) and self.checkBlockedTracks(vehicle, tracks):
 			print("Adding vehicle with ID=" + str(vehicle.vehicle_id))
 			self.vehicles_ids.append(vehicle.vehicle_id)
 			self.vehicles_list.append(vehicle)

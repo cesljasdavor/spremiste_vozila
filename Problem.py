@@ -3,6 +3,7 @@ from Vehicle import *
 from Vehicles import *
 from Track import *
 from Tracks import *
+from random import shuffle
 
 class Problem:
 
@@ -19,7 +20,8 @@ class Problem:
 		self.track_lenghts = []
 		self.departure_times = []
 		self.schedule_types = []
-		self.blocked_tracks = []
+		self.tracks_blocked_by = {}
+		self.blocking_tracks = {}
 
 
 	# Parses problem instance given from input file
@@ -100,9 +102,17 @@ class Problem:
 			# Blocked tracks
 			for line in f.readlines():
 				tmp_track = line.strip().split(' ')
-				self.blocked_tracks += [tmp_track]
-			print("\nBlocked tracks:")
-			print(self.blocked_tracks)
+				self.tracks_blocked_by[tmp_track[0]] = tmp_track[1:]
+
+				for track in tmp_track[1:]:
+					if track in self.blocking_tracks:
+						self.blocking_tracks[track].append(tmp_track[0])
+					else:
+						self.blocking_tracks[track] = [tmp_track[0]]
+			print("\nTracks blocked by:")
+			print(self.tracks_blocked_by)
+			print("\nBlocking tracks for:")
+			print(self.blocking_tracks)
 
 		self.makeObjects()
 			
@@ -130,8 +140,8 @@ class Problem:
 				if self.track_specifics[v][t] == 1:
 					allowed_vehicles.append(v + 1)
 
-			if t < len(self.blocked_tracks):
-				track = Track(t_id, self.track_lenghts[t], allowed_vehicles, self.blocked_tracks[t])
+			if t_id in self.tracks_blocked_by:
+				track = Track(t_id, self.track_lenghts[t], allowed_vehicles, self.tracks_blocked_by[t_id])
 			else:
 				track = Track(t_id, self.track_lenghts[t], allowed_vehicles)
 			self.tracks.add(track)
@@ -143,13 +153,14 @@ class Problem:
 	# Implements solution to the problem instance
 	def solve(self):
 		vehicles_added = 0
-		for vehicle in self.vehicles.vehicles_list:
+		for vehicle in self.vehicles.sortByDepartureTimeAscending():
 			print("\nCurrent vehicle:")
 			print(vehicle)
+			shuffle(self.tracks.tracks_list)
 			for track in self.tracks.tracks_list:
 				print("\nCurrent track:")
 				print(track)
-				if track.addVehicle(vehicle) == True:
+				if track.addVehicle(vehicle, self.tracks) == True:
 					print("Vehicle added!")
 					vehicles_added += 1
 					print("\nTrack now looks like this:")
