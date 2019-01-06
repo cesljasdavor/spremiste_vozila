@@ -170,12 +170,12 @@ class Problem:
         if vehicles_added == self.vehicle_count:
             goal1 = self.firstGlobalGoalEvaluate()
             goal2 = self.secondGlobalGoalEvalute()
-            print("Success: ", goal1, goal2)
             if goal1 < self.best_g1 and goal2 > self.best_g2:
                 print("Best: ", goal1, goal2)
                 self.best_g1 = goal1
                 self.best_g2 = goal2
                 self.best_tracks = self.tracks
+                print("Success: ", goal1, goal2)
         # print("All vehicles added successfully!")
 
     # else:
