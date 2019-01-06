@@ -270,8 +270,8 @@ def main():
     while time.time() < t_end:
         problem.make_objects()
         problem.solve()
-    problem.output_solution("res-{0}m-{1}.txt".format(
-        minutes if minutes == 1 or minutes == 5 else "n",
+    problem.output_solution("res-{0}-{1}.txt".format(
+        str(minutes) + "n" if minutes == 1 or minutes == 5 else "n",
         problem_file.split(".")[0])
     )
 
