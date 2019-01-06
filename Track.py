@@ -1,5 +1,3 @@
-import copy
-
 EMPTY_SPACE = 0.5
 
 class Track:
