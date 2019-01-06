@@ -15,10 +15,10 @@ class Problem:
         self.tracks = None
         self.vehicle_count = 0
         self.track_count = 0
-        self.vehicle_lenghts = []
+        self.vehicle_lengths = []
         self.vehicle_types = []
         self.track_specifics = []
-        self.track_lenghts = []
+        self.track_lengths = []
         self.departure_times = []
         self.schedule_types = []
         self.tracks_blocked_by = {}
@@ -27,30 +27,28 @@ class Problem:
         self.best_g2 = -sys.maxsize - 1
         self.best_tracks = None
 
-    # Parses problem instance given from input file
-    def parseProblem(self):
-        # print("Parsing problem...\n")
+    def parse_problem(self):
+        """
+        Parses problem instance given from input file
+        :return: void
+        """
         with open(self.problem_instance, 'r') as f:
 
             # Vehicle count
             self.vehicle_count = int(f.readline().strip())
-            # print("Vehicle count:", self.vehicle_count)
 
             # Track count
             self.track_count = int(f.readline().strip())
-            # print("Track count:", self.track_count)
 
             # Empty space
             f.readline()
 
             # Vehicle lenghts
-            self.vehicle_lenghts = f.readline().strip()
-            self.vehicle_lenghts = self.vehicle_lenghts.split(' ')
-            if len(self.vehicle_lenghts) != self.vehicle_count:
+            self.vehicle_lengths = f.readline().strip()
+            self.vehicle_lengths = self.vehicle_lengths.split(' ')
+            if len(self.vehicle_lengths) != self.vehicle_count:
                 sys.exit("vehicle_lenghts and vehicle count don't match")
-            # print("\nVehicle lenghts:")
-            self.vehicle_lenghts = list(map(int, self.vehicle_lenghts))
-            # print(self.vehicle_lenghts)
+            self.vehicle_lengths = list(map(int, self.vehicle_lengths))
 
             # Empty space
             f.readline()
@@ -59,8 +57,6 @@ class Problem:
             self.vehicle_types = f.readline().strip().split(' ')
             if len(self.vehicle_types) != self.vehicle_count:
                 sys.exit("vehicle_types and vehicle count don't match")
-            # print("\n Vehicle types:")
-            # print(self.vehicle_types)
 
             # Empty space
             f.readline()
@@ -70,17 +66,13 @@ class Problem:
                 veh_specifics = f.readline().strip().split(' ')
                 veh_specifics = list(map(int, veh_specifics))
                 self.track_specifics += [veh_specifics]
-            # print("\nTrack specifics:")
-            # print(self.track_specifics)
 
             # Empty space
             f.readline()
 
-            # Track lenghts
-            self.track_lenghts = f.readline().strip().split(' ')
-            self.track_lenghts = list(map(int, self.track_lenghts))
-            # print("\nTrack lenghts:")
-            # print(self.track_lenghts)
+            # Track lengths
+            self.track_lengths = f.readline().strip().split(' ')
+            self.track_lengths = list(map(int, self.track_lengths))
 
             # Empty space
             f.readline()
@@ -88,16 +80,12 @@ class Problem:
             # Departure times
             self.departure_times = f.readline().strip().split(' ')
             self.departure_times = list(map(int, self.departure_times))
-            # print("\nDeparture times:")
-            # print(self.departure_times)
 
             # Empty space
             f.readline()
 
             # Schedule types
             self.schedule_types = f.readline().strip().split(' ')
-            # print("\nSchedule types:")
-            # print(self.schedule_types)
 
             # Empty space
             f.readline()
@@ -112,25 +100,17 @@ class Problem:
                         self.blocking_tracks[track].append(tmp_track[0])
                     else:
                         self.blocking_tracks[track] = [tmp_track[0]]
-        # print("\nTracks blocked by:")
-        # print(self.tracks_blocked_by)
-        # print("\nBlocking tracks for:")
-        # print(self.blocking_tracks)
 
-    def makeObjects(self):
+    def make_objects(self):
 
         # Make Vehicles
-        # print("\nCreating vehicles...\n")
         self.vehicles = Vehicles()
         for v in range(self.vehicle_count):
-            vehicle = Vehicle((v + 1), self.vehicle_lenghts[v], self.vehicle_types[v], self.departure_times[v],
+            vehicle = Vehicle((v + 1), self.vehicle_lengths[v], self.vehicle_types[v], self.departure_times[v],
                               self.schedule_types[v], self.track_specifics[v])
             self.vehicles.add(vehicle)
-        ## print("Added vehicles:")
-        # print(self.vehicles)
 
         # Make Tracks
-        # print("Creating tracks...\n")
         t_id = 1
         self.tracks = Tracks()
         for t in range(self.track_count):
@@ -141,57 +121,49 @@ class Problem:
                     allowed_vehicles.append(v + 1)
 
             if t_id in self.tracks_blocked_by:
-                track = Track(t_id, self.track_lenghts[t], allowed_vehicles, self.tracks_blocked_by[t_id])
+                track = Track(t_id, self.track_lengths[t], allowed_vehicles, self.tracks_blocked_by[t_id])
             else:
-                track = Track(t_id, self.track_lenghts[t], allowed_vehicles)
+                track = Track(t_id, self.track_lengths[t], allowed_vehicles)
             self.tracks.add(track)
             t_id += 1
 
-    # print("Added tracks:")
-    # print(self.tracks)
-
-    # Implements solution to the problem instance
     def solve(self):
+        """
+        Implements solution to the problem instance
+        :return: void
+        """
         vehicles_added = 0
         for vehicle in self.vehicles.sortByDepartureTimeAscending():
-            # print("\nCurrent vehicle:")
-            # print(vehicle)
             shuffle(self.tracks.tracks_list)
             for track in self.tracks.tracks_list:
-                # print("\nCurrent track:")
-                # print(track)
                 if track.addVehicle(vehicle, self.tracks) == True:
-                    # print("Vehicle added!")
                     vehicles_added += 1
-                    # print("\nTrack now looks like this:")
-                    # print(track)
                     break
-        # print("Number of vehicles added:", vehicles_added)
+
         if vehicles_added == self.vehicle_count:
-            goal1 = self.firstGlobalGoalEvaluate()
-            goal2 = self.secondGlobalGoalEvalute()
+            goal1 = self.first_global_goal_evaluate()
+            goal2 = self.second_global_goal_evalute()
             if goal1 < self.best_g1 and goal2 > self.best_g2:
                 print("Best: ", goal1, goal2)
                 self.best_g1 = goal1
                 self.best_g2 = goal2
                 self.best_tracks = self.tracks
                 print("Success: ", goal1, goal2)
-        # print("All vehicles added successfully!")
-
-    # else:
-    # print("NOT ALL VEHICLES ADDED! TRY AGAIN!")
 
     # Output solution to file "outfile"
-    def outputSolution(self, outfile):
-        # print("length: ", len(self.best_tracks.tracks_list))
+    def output_solution(self, outfile):
         with open(outfile, "w") as f:
+            count = 0
             for track in self.best_tracks.tracks_list:
                 out = ""
                 for vehicle in track.vehicles_list:
                     out += str(vehicle.vehicle_id) + " "
-                f.write(out + "\n")
+                f.write(out)
+                count += 1
+                if count < self.track_count:
+                    f.write("\n")
 
-    def firstGlobalGoalEvaluate(self):
+    def first_global_goal_evaluate(self):
         used_count = 0
         for track in self.tracks.tracks_list:
             if track.vehicle_count > 0:
@@ -211,17 +183,16 @@ class Problem:
 
         f2 = used_count
 
-        p3 = 1 / (sum(self.track_lenghts) - sum(self.vehicle_lenghts))
+        p3 = 1 / (sum(self.track_lengths) - sum(self.vehicle_lengths))
 
         f3 = 0
         for track in self.tracks.tracks_list:
             if track.vehicle_count > 0:
                 f3 += track.track_len_left
 
-        goalOneEval = p1 * f1 + p2 * f2 + p3 * f3
-        return goalOneEval
+        return p1 * f1 + p2 * f2 + p3 * f3
 
-    def secondGlobalGoalEvalute(self):
+    def second_global_goal_evalute(self):
         used_count = 0
         for track in self.tracks.tracks_list:
             if track.vehicle_count > 0:
@@ -264,22 +235,24 @@ class Problem:
 
         r3 = 1 / (15 * eval_pairs)
 
-        goalSecondEval = r1 * g1 + r2 * g2 + r3 * g3
-        return goalSecondEval
+        return r1 * g1 + r2 * g2 + r3 * g3
 
 
 def main():
-    problem = Problem("./instanca1.txt")
-    # print(problem.best_g1, problem.best_g2)
-    # print("###########################################################")
-    problem.parseProblem()
+    problem_file = sys.argv[1]
+    minutes = int(sys.argv[2])
 
-    minutes = 1
+    problem = Problem(problem_file)
+    problem.parse_problem()
+
     t_end = time.time() + 60 * minutes
-    while (time.time() < t_end):
-        problem.makeObjects()
+    while time.time() < t_end:
+        problem.make_objects()
         problem.solve()
-    problem.outputSolution("./solution.txt")
+    problem.output_solution("res-{0}m-{1}.txt".format(
+        minutes if minutes == 1 or minutes == 5 else "n",
+        problem_file.split(".")[0])
+    )
 
 
 if __name__ == "__main__":
