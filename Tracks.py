@@ -14,7 +14,7 @@ class Tracks:
             out += str(track) + "\n\n"
         return out
 
-    def getTrackById(self, tid):
+    def get_track_by_id(self, tid):
         for track in self.tracks_list:
             if track.track_id == tid:
                 return track

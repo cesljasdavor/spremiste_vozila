@@ -32,6 +32,7 @@ class Problem:
         Parses problem instance given from input file
         :return: void
         """
+
         with open(self.problem_instance, 'r') as f:
 
             # Vehicle count
@@ -102,6 +103,10 @@ class Problem:
                         self.blocking_tracks[track] = [tmp_track[0]]
 
     def make_objects(self):
+        """
+        Create iteration objects
+        :return: void
+        """
 
         # Make Vehicles
         self.vehicles = Vehicles()
@@ -132,11 +137,12 @@ class Problem:
         Implements solution to the problem instance
         :return: void
         """
+
         vehicles_added = 0
-        for vehicle in self.vehicles.sortByDepartureTimeAscending():
+        for vehicle in self.vehicles.sort_by_departure_time_ascending():
             shuffle(self.tracks.tracks_list)
             for track in self.tracks.tracks_list:
-                if track.addVehicle(vehicle, self.tracks) == True:
+                if track.add_vehicle(vehicle, self.tracks):
                     vehicles_added += 1
                     break
 
@@ -150,8 +156,13 @@ class Problem:
                 self.best_tracks = self.tracks
                 print("Success: ", goal1, goal2)
 
-    # Output solution to file "outfile"
     def output_solution(self, outfile):
+        """
+        Output solution to file "outfile"
+        :param outfile: output file
+        :return: void
+        """
+
         with open(outfile, "w") as f:
             count = 0
             for track in self.best_tracks.tracks_list:
@@ -164,22 +175,27 @@ class Problem:
                     f.write("\n")
 
     def first_global_goal_evaluate(self):
+        """
+        First global goal evaluation
+        :return: first global goal
+        """
+
         used_count = 0
         for track in self.tracks.tracks_list:
             if track.vehicle_count > 0:
                 used_count += 1
         p1 = 1 / (used_count - 1)
 
-        assignes_types_list = []
+        assignees_types_list = []
         for track in self.tracks.tracks_list:
             if track.vehicle_count > 0:
-                assignes_types_list.append(track.assigned_type)
+                assignees_types_list.append(track.assigned_type)
         f1 = 0
-        for first, second in zip(assignes_types_list, assignes_types_list[1:]):
+        for first, second in zip(assignees_types_list, assignees_types_list[1:]):
             if first != second:
                 f1 += 1
 
-        p2 = 1 / (self.track_count)
+        p2 = 1 / self.track_count
 
         f2 = used_count
 
@@ -193,6 +209,11 @@ class Problem:
         return p1 * f1 + p2 * f2 + p3 * f3
 
     def second_global_goal_evalute(self):
+        """
+        Second global goal evaluation
+        :return: second global goal
+        """
+
         used_count = 0
         for track in self.tracks.tracks_list:
             if track.vehicle_count > 0:

@@ -27,24 +27,39 @@ class Track:
         out += "Vehicles IDs:" + str(self.vehicles_ids)
         return out
 
-    # Check if the vehicle type is the same as track type
-    def checkType(self, vehicle):
-        if self.assigned_type == None:
+    def check_type(self, vehicle):
+        """
+        Check if the vehicle type is the same as track type
+        :param vehicle: vehicle object
+        :return: boolean
+        """
+
+        if self.assigned_type is None:
             return True
         elif self.assigned_type == vehicle.vehicle_type:
             return True
         else:
             return False
 
-    # Check if the track supports this type of vehicle by its ID
-    def checkIdAllowed(self, vehicle):
+    def check_id_allowed(self, vehicle):
+        """
+        Check if the track supports this type of vehicle by its ID
+        :param vehicle: vehicle object
+        :return: boolean
+        """
+
         if vehicle.vehicle_id in self.vehicle_constraints:
             return True
         else:
             return False
 
-    # Check if there is enough track length left for vehicle to put in
-    def checkEnoughLen(self, vehicle):
+    def check_enough_length(self, vehicle):
+        """
+        Check if there is enough track length left for vehicle to put in
+        :param vehicle: vehicle object
+        :return: boolean
+        """
+
         if self.vehicle_count == 0:
             if self.track_len_left >= vehicle.vehicle_len:
                 return True
@@ -56,13 +71,24 @@ class Track:
             else:
                 return False
 
-    def checkAlreadyExisting(self, vehicle):
+    def check_already_existing(self, vehicle):
+        """
+        Check if vehicle already exists
+        :param vehicle: vehicle object
+        :return: boolean
+        """
+
         if vehicle in self.vehicles_list:
             return False
         return True
 
-    # Check if the departure time of vehicle is after the departure time of the last vehicle in this track
-    def checkTimings(self, vehicle):
+    def check_timings(self, vehicle):
+        """
+        Check if the departure time of vehicle is after the departure time of the last vehicle in this track
+        :param vehicle: vehicle object
+        :return: boolean
+        """
+
         if self.vehicle_count == 0:
             return True
         last_vehicle_timing = self.vehicles_list[-1].departure_time
@@ -70,12 +96,19 @@ class Track:
             return True
         return False
 
-    # Check if vehicle's departure time is lower than the departure times of all the vehicles first in line in tracks that this track blocks
-    def checkBlockedTracks(self, vehicle, tracks):
-        if self.tracks_blocked_by == None:
+    def check_blocked_tracks(self, vehicle, tracks):
+        """
+        Check if vehicle's departure time is lower than the departure times of
+        all the vehicles first in line in tracks that this track blocks
+        :param vehicle: vehicle object
+        :param tracks: tracks object
+        :return: boolean
+        """
+
+        if self.tracks_blocked_by is None:
             return True
         for bTrack in self.tracks_blocked_by:
-            checked_track = tracks.getTrackById(bTrack)
+            checked_track = tracks.get_track_by_id(bTrack)
             if checked_track.vehicle_count == 0:
                 continue
             first_vehicle_dtime = checked_track.vehicles_list[0].departure_time
@@ -83,10 +116,16 @@ class Track:
                 return False
         return False
 
-    # Perform checks and add vehicle to track
-    def addVehicle(self, vehicle, tracks):
-        if self.checkType(vehicle) and self.checkIdAllowed(vehicle) and self.checkEnoughLen(
-                vehicle) and self.checkAlreadyExisting(vehicle) and self.checkTimings(vehicle) and self.checkBlockedTracks(vehicle, tracks):
+    def add_vehicle(self, vehicle, tracks):
+        """
+        Perform checks and add vehicle to track
+        :param vehicle: vehicle object
+        :param tracks: tracks object
+        :return: boolean
+        """
+
+        if self.check_type(vehicle) and self.check_id_allowed(vehicle) and self.check_enough_length(
+                vehicle) and self.check_already_existing(vehicle) and self.check_timings(vehicle) and self.check_blocked_tracks(vehicle, tracks):
             self.vehicles_ids.append(vehicle.vehicle_id)
             self.vehicles_list.append(vehicle)
 
