@@ -37,7 +37,7 @@ class Track:
 		elif self.assigned_type == vehicle.vehicle_type:
 			return True
 		else:
-			print("Type mismatch, track type:" + str(self.assigned_type) + ", vehicle type:" + str(vehicle.vehicle_type))
+			# print("Type mismatch, track type:" + str(self.assigned_type) + ", vehicle type:" + str(vehicle.vehicle_type))
 			return False
 
 	# Check if the track supports this type of vehicle by its ID
@@ -45,7 +45,7 @@ class Track:
 		if vehicle.vehicle_id in self.vehicle_constraints:
 			return True
 		else:
-			print("Vehicle with ID=" + str(vehicle.vehicle_id) + " is not allowed in this track")
+			# print("Vehicle with ID=" + str(vehicle.vehicle_id) + " is not allowed in this track")
 			return False
 
 	# Check if there is enough track length left for vehicle to put in
@@ -54,13 +54,13 @@ class Track:
 			if self.track_len_left >= vehicle.vehicle_len:
 				return True
 			else:
-				print("Not enough lenth left in track")
+				# print("Not enough lenth left in track")
 				return False
 		else:
 			if self.track_len_left >= (vehicle.vehicle_len + EMPTY_SPACE):
 				return True
 			else:
-				print("Not enough lenth left in track")
+				# print("Not enough lenth left in track")
 				return False
 
 	def checkAlreadyExisting(self, vehicle):
@@ -97,7 +97,7 @@ class Track:
 	# Perform checks and add vehicle to track
 	def addVehicle(self, vehicle, tracks):
 		if self.checkType(vehicle) and self.checkIdAllowed(vehicle) and self.checkEnoughLen(vehicle) and self.checkAlreadyExisting(vehicle) and self.checkTimings(vehicle) and self.checkBlockedTracks(vehicle, tracks):
-			print("Adding vehicle with ID=" + str(vehicle.vehicle_id))
+			## print("Adding vehicle with ID=" + str(vehicle.vehicle_id))
 			self.vehicles_ids.append(vehicle.vehicle_id)
 			self.vehicles_list.append(vehicle)
 
@@ -114,6 +114,6 @@ class Track:
 				self.assigned_type = vehicle.vehicle_type
 			return True
 		else:
-			print("Vehicle not added")
+			## print("Vehicle not added")
 			return False
 

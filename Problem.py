@@ -5,6 +5,7 @@ from Track import *
 from Tracks import *
 from random import shuffle
 import itertools
+import time
 
 class Problem:
 
@@ -23,6 +24,9 @@ class Problem:
 		self.schedule_types = []
 		self.tracks_blocked_by = {}
 		self.blocking_tracks = {}
+		self.best_g1 = sys.maxsize
+		self.best_g2 = -sys.maxsize - 1
+		self.best_tracks = None
 
 
 	# Parses problem instance given from input file
@@ -114,8 +118,6 @@ class Problem:
 			print(self.tracks_blocked_by)
 			print("\nBlocking tracks for:")
 			print(self.blocking_tracks)
-
-		self.makeObjects()
 			
 
 	def makeObjects(self):
@@ -155,29 +157,38 @@ class Problem:
 	def solve(self):
 		vehicles_added = 0
 		for vehicle in self.vehicles.sortByDepartureTimeAscending():
-			print("\nCurrent vehicle:")
-			print(vehicle)
+			#print("\nCurrent vehicle:")
+			#print(vehicle)
 			shuffle(self.tracks.tracks_list)
 			for track in self.tracks.tracks_list:
-				print("\nCurrent track:")
-				print(track)
+				#print("\nCurrent track:")
+				#print(track)
 				if track.addVehicle(vehicle, self.tracks) == True:
-					print("Vehicle added!")
+					#print("Vehicle added!")
 					vehicles_added += 1
-					print("\nTrack now looks like this:")
-					print(track)
+					#print("\nTrack now looks like this:")
+					#print(track)
 					break
-		print("Number of vehicles added:", vehicles_added)
+		#print("Number of vehicles added:", vehicles_added)
 		if vehicles_added == self.vehicle_count:
-			self.firstGlobalGoalEvaluate()
+			goal1 = self.firstGlobalGoalEvaluate()
+			goal2 = self.secondGlobalGoalEvalute()
+			print("--------------", goal1, goal2)
+			if goal1 < self.best_g1 and goal2 > self.best_g2:
+				print("--------------------", goal1, goal2)
+				self.best_g1 = goal1
+				self.best_g2 = goal2
+				self.best_tracks = self.tracks
 			print("All vehicles added successfully!")
+
 		else:
 			print("NOT ALL VEHICLES ADDED! TRY AGAIN!")
 
 	# Output solution to file "outfile"
 	def outputSolution(self, outfile):
+		print("length: ", len(self.best_tracks.tracks_list))
 		with open(outfile, "w") as f:
-			for track in self.tracks.tracks_list:
+			for track in self.best_tracks.tracks_list:
 				out = ""
 				for vehicle in track.vehicles_list:
 					out += str(vehicle.vehicle_id) + " "
@@ -212,7 +223,6 @@ class Problem:
 				f3 += track.track_len_left
 
 		goalOneEval = p1*f1 + p2*f2 + p3*f3
-		print(goalOneEval)
 		return goalOneEval
 
 
@@ -223,19 +233,61 @@ class Problem:
 				used_count += 1
 		r1 = 1 / (self.vehicle_count - used_count)
 
+		g1 = 0
+		for track in self.tracks.tracks_list:
+			if track.vehicle_count > 1:
+				sched_type_count = 0
+				for first, second in zip(track.vehicles_list, track.vehicles_list[1:]):
+					if first.schedule_type == second.schedule_type:
+						sched_type_count += 1
+				g1 += sched_type_count
+		
+		r2 = 1 / (used_count - 1)
 
+		g2 = 0
+		used_tracks = []
+		for track in self.tracks.tracks_list:
+			if track.vehicle_count > 0:
+				used_tracks.append(track)
+		for first, second in zip(used_tracks, used_tracks[1:]):
+			if first.vehicles_list[-1].schedule_type == second.vehicles_list[0].schedule_type:
+				g2 += 1
+		
+		eval_pairs = 0
+		g3 = 0
+		for track in self.tracks.tracks_list:
+			if track.vehicle_count > 1:
+				for first, second in zip(track.vehicles_list, track.vehicles_list[1:]):
+					diff = second.departure_time - first.departure_time
+					eval_pairs += 1
+					if diff >= 10 and diff <= 20:
+						g3 += 15
+					elif diff > 20:
+						g3 += 10
+					elif diff < 10:
+						g3 += -4 * (10 - diff)
+		
+		r3 = 1 / (15 * eval_pairs)
+
+		goalSecondEval = r1*g1 + r2*g2 + r3*g3
+		return goalSecondEval
 
 
 
 def main():
 	
-	problem = Problem("./instanca1.txt")
-	print("###########################################################")
-	problem.parseProblem()
-	print("###########################################################")
-	problem.solve()
-	print("###########################################################")
-	problem.outputSolution("./solution.txt")
+
+		problem = Problem("./instanca1.txt")
+		print(problem.best_g1, problem.best_g2)
+		print("###########################################################")
+		problem.parseProblem()
+
+		minutes = 0.1
+		t_end = time.time() + 60 * minutes
+		while(time.time() < t_end):
+			problem.makeObjects()
+			problem.solve()
+		problem.outputSolution("./solution.txt")
 
 if __name__ == "__main__":
 	main()

@@ -28,7 +28,7 @@ class Vehicle:
 		if self.assigned_track == None:
 			self.assigned_track = track
 		else:
-			print("Track not assigned because the vehicle already has a track")
+			#print("Track not assigned because the vehicle already has a track")
 			sys.exit(1)
 
 
@@ -36,6 +36,6 @@ class Vehicle:
 		if self.assigned_position == None:
 			self.assigned_position = position
 		else:
-			print("Position not assigned because the vehicle already has a position")
+			#print("Position not assigned because the vehicle already has a position")
 			sys.exit(1)
 

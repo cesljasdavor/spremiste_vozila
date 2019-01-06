@@ -16,8 +16,8 @@ class Tracks:
 			out += str(track) + "\n\n"
 		return out
 
-	def getTrackById(tid):
+	def getTrackById(self, tid):
 		for track in self.tracks_list:
 			if track.track_id == tid:
 				return track
-		print("There is no track by ID=" + str(tid))
+		#print("There is no track by ID=" + str(tid))
