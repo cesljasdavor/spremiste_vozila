@@ -4,6 +4,7 @@ from Vehicles import *
 from Track import *
 from Tracks import *
 from random import shuffle
+import itertools
 
 class Problem:
 
@@ -168,6 +169,7 @@ class Problem:
 					break
 		print("Number of vehicles added:", vehicles_added)
 		if vehicles_added == self.vehicle_count:
+			self.firstGlobalGoalEvaluate()
 			print("All vehicles added successfully!")
 		else:
 			print("NOT ALL VEHICLES ADDED! TRY AGAIN!")
@@ -180,6 +182,49 @@ class Problem:
 				for vehicle in track.vehicles_list:
 					out += str(vehicle.vehicle_id) + " "
 				f.write(out + "\n")
+
+
+	def firstGlobalGoalEvaluate(self):
+		used_count = 0
+		for track in self.tracks.tracks_list:
+			if track.vehicle_count > 0:
+				used_count += 1
+		p1 = 1 / (used_count - 1)
+
+		assignes_types_list = []
+		for track in self.tracks.tracks_list:
+			if track.vehicle_count > 0:
+				assignes_types_list.append(track.assigned_type)
+		f1 = 0
+		for first, second in zip(assignes_types_list, assignes_types_list[1:]):
+			if first != second:
+				f1 += 1
+
+		p2 = 1 / (self.track_count)
+
+		f2 = used_count
+
+		p3 = 1 / (sum(self.track_lenghts) - sum(self.vehicle_lenghts))
+		
+		f3 = 0
+		for track in self.tracks.tracks_list:
+			if track.vehicle_count > 0:
+				f3 += track.track_len_left
+
+		goalOneEval = p1*f1 + p2*f2 + p3*f3
+		print(goalOneEval)
+		return goalOneEval
+
+
+	def secondGlobalGoalEvalute(self):
+		used_count = 0
+		for track in self.tracks.tracks_list:
+			if track.vehicle_count > 0:
+				used_count += 1
+		r1 = 1 / (self.vehicle_count - used_count)
+
+
+
 
 
 def main():
