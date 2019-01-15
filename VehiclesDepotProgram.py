@@ -1,5 +1,5 @@
-import time
 import sys
+import time
 
 from problem.Problem import Problem
 from problem.ProblemParser import ProblemParser
@@ -22,11 +22,14 @@ def main():
     parser = ProblemParser(problem)
     parser.parse()
 
+    solutions_count = 0
     time_end = time.time() + 60 * minutes
     while time.time() < time_end:
         problem.make_objects()
-        problem.solve()
+        if problem.solve():
+            solutions_count += 1
 
+    print("Solutions count", solutions_count)
     print("Best: ", problem.best_gg1, problem.best_gg2)
     output_file_name = get_output_file_name(minutes, problem_file)
     writer = SolutionWriter(problem)

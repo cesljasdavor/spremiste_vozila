@@ -45,8 +45,7 @@ class Problem:
 
             self.vehicles.append(vehicle)
 
-        # Make Tracks
-        track_id = 1
+        track_counter = 1
         self.tracks = []
         for track_index in range(self.track_count):
             allowed_vehicles = []
@@ -54,11 +53,19 @@ class Problem:
                 if self.track_specifics[vehicle_index][track_index] == 1:
                     allowed_vehicles.append(vehicle_index + 1)
 
+            track_id = str(track_counter)
             tracks_blocked_by = self.tracks_blocked_by[track_id] if track_id in self.tracks_blocked_by else None
-            track = Track(track_id, self.track_lengths[track_index], allowed_vehicles, tracks_blocked_by)
+            blocking_tracks = self.blocking_tracks[track_id] if track_id in self.blocking_tracks else None
+            track = Track(
+                track_id,
+                self.track_lengths[track_index],
+                allowed_vehicles,
+                tracks_blocked_by,
+                blocking_tracks
+            )
 
             self.tracks.append(track)
-            track_id += 1
+            track_counter += 1
 
     def solve(self):
         """
@@ -66,22 +73,45 @@ class Problem:
         :return: void
         """
 
-        vehicles_added = 0
+        grader = ProblemGrader(self)
+        tracks_copy = self.tracks.copy()
         vehicles_sorted = sorted(self.vehicles, key=lambda x: x.departure_time)
-        for vehicle in vehicles_sorted:
-            shuffle(self.tracks)
-            for track in self.tracks:
-                if track.add_vehicle(vehicle, self.tracks):
-                    vehicles_added += 1
-                    break
 
-        if vehicles_added == self.vehicle_count:
-            grader = ProblemGrader(self)
-            goal1 = grader.calculate_first_global_goal()
-            goal2 = grader.calculate_second_global_goal()
-            if goal1 < self.best_gg1 and goal2 > self.best_gg2:
-                print("Success: ", goal1, goal2)
-                self.best_gg1 = goal1
-                self.best_gg2 = goal2
-                self.best_tracks = self.tracks
+        vehicles_added = 0
+        while len(vehicles_sorted) != 0:
+            best_ratio = - sys.maxsize - 1
+            best_track = None
+            best_vehicle = None
+            shuffle(tracks_copy)
 
+            for vehicle in vehicles_sorted:
+                for track in tracks_copy:
+                    if track.add_vehicle(vehicle, self.tracks):
+                        grader.reinitialize_grader()
+                        goal1 = grader.calculate_first_global_goal()
+                        goal2 = grader.calculate_second_global_goal()
+                        ratio = goal2 / goal1
+                        if ratio > best_ratio:
+                            best_ratio = ratio
+                            best_track = track
+                            best_vehicle = vehicle
+
+                        track.remove_last()
+
+            if best_vehicle is not None and best_track is not None:
+                vehicles_added += 1
+                best_track.add_vehicle(best_vehicle, self.tracks)
+                vehicles_sorted.remove(best_vehicle)
+            else:
+                return False
+
+        grader.reinitialize_grader()
+        goal1 = grader.calculate_first_global_goal()
+        goal2 = grader.calculate_second_global_goal()
+        print("Success:", goal1, goal2)
+        if goal1 < self.best_gg1 and goal2 > self.best_gg2:
+            self.best_gg1 = goal1
+            self.best_gg2 = goal2
+            self.best_tracks = self.tracks
+
+        return True

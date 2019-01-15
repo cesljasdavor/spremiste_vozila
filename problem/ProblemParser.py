@@ -34,9 +34,9 @@ class ProblemParser(object):
 
             # Track specifics matrix
             for i in range(self.problem.vehicle_count):
-                veh_specifics = file.readline().strip().split(' ')
-                veh_specifics = list(map(int, veh_specifics))
-                self.problem.track_specifics += [veh_specifics]
+                vehicle_specifics = file.readline().strip().split(' ')
+                vehicle_specifics = list(map(int, vehicle_specifics))
+                self.problem.track_specifics += [vehicle_specifics]
 
             # Empty space
             file.readline()

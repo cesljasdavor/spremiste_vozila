@@ -5,11 +5,19 @@ EMPTY_SPACE = 0.5
 
 class Track:
 
-    def __init__(self, track_id, track_length=None, vehicle_constraints=None, tracks_blocked_by=None):
+    def __init__(
+            self,
+            track_id,
+            track_length=None,
+            vehicle_constraints=None,
+            tracks_blocked_by=None,
+            blocking_tracks=None
+    ):
         self.track_id = track_id
         self.track_length = track_length
         self.vehicle_constraints = vehicle_constraints
         self.tracks_blocked_by = tracks_blocked_by
+        self.blocking_tracks = blocking_tracks
         self.vehicles_ids = []
         self.vehicles = []
 
@@ -54,13 +62,26 @@ class Track:
         if self.tracks_blocked_by is not None:
             for blocked_track_id in self.tracks_blocked_by:
                 blocked_track = find_track(tracks, blocked_track_id)
+
                 if blocked_track.vehicle_count() == 0:
                     continue
+
                 first_vehicle_departure_time = blocked_track.vehicles[0].departure_time
                 if vehicle.departure_time > first_vehicle_departure_time:
                     return False
-            return False
 
+        if self.blocking_tracks is not None:
+            for blocking_track_id in self.blocking_tracks:
+                blocking_track = find_track(tracks, blocking_track_id)
+
+                if blocking_track.vehicle_count() == 0:
+                    continue
+
+                last_vehicle_departure_time = blocking_track.vehicles[-1].departure_time
+                if vehicle.departure_time < last_vehicle_departure_time:
+                    return False
+
+        # If all passes
         return True
 
     def add_vehicle(self, vehicle, tracks):
@@ -74,19 +95,37 @@ class Track:
         if not self.check_vehicle(vehicle, tracks):
             return False
 
-        self.vehicles_ids.append(vehicle.vehicle_id)
-        self.vehicles.append(vehicle)
-
         if self.vehicle_count() == 0:
             self.track_length_left -= vehicle.vehicle_length
         else:
             self.track_length_left -= vehicle.vehicle_length + EMPTY_SPACE
 
+        self.vehicles_ids.append(vehicle.vehicle_id)
+        self.vehicles.append(vehicle)
+
         vehicle.assigned_track = self
         vehicle.assigned_position = self.vehicle_count()
         if self.assigned_type is None:
             self.assigned_type = vehicle.vehicle_type
+
         return True
+
+    def remove_last(self):
+        vehicle = self.vehicles[-1]
+
+        self.vehicles_ids = self.vehicles_ids[:-1]
+        self.vehicles = self.vehicles[:-1]
+
+        vehicle.assigned_track = None
+        vehicle.assigned_position = None
+
+        if self.vehicle_count() == 0:
+            self.track_length_left += vehicle.vehicle_length
+        else:
+            self.track_length_left += vehicle.vehicle_length + EMPTY_SPACE
+
+        if self.vehicle_count() == 0:
+            self.assigned_type = None
 
     def vehicle_count(self):
         """

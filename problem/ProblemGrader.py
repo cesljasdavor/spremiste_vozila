@@ -1,15 +1,15 @@
 class ProblemGrader(object):
     def __init__(self, problem):
         self.problem = problem
-        self.used_count = self.get_used_count()
+        self.used_count = 0
 
-    def get_used_count(self):
-        used_count = 0
+        self.reinitialize_grader()
+
+    def reinitialize_grader(self):
+        self.used_count = 0
         for track in self.problem.tracks:
             if track.vehicle_count() > 0:
-                used_count += 1
-
-        return used_count
+                self.used_count += 1
 
     def calculate_first_global_goal(self):
         """
@@ -25,7 +25,7 @@ class ProblemGrader(object):
         :return: first subgoal of first global goal
         """
 
-        p1 = 1 / (self.used_count - 1)
+        p1 = 1 / (self.used_count - 1) if self.used_count > 1 else 1
 
         assignees_types_list = []
         for track in self.problem.tracks:
@@ -97,7 +97,7 @@ class ProblemGrader(object):
         :return: second subgoal of second global goal
         """
 
-        r2 = 1 / (self.used_count - 1)
+        r2 = 1 / (self.used_count - 1) if self.used_count > 1 else 1
 
         g2 = 0
         used_tracks = []
@@ -130,6 +130,6 @@ class ProblemGrader(object):
                     elif diff < 10:
                         g3 += -4 * (10 - diff)
 
-        r3 = 1 / (15 * eval_pairs)
+        r3 = 1 / (15 * eval_pairs) if eval_pairs > 0 else 1 / 15
 
         return r3 * g3
