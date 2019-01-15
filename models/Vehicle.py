@@ -7,6 +7,7 @@ class Vehicle:
             vehicle_type=None,
             departure_time=None,
             schedule_type=None,
+            allowed_tracks_count=None,
             allowed_tracks=[]
     ):
         self.vehicle_id = vehicle_id
@@ -15,6 +16,7 @@ class Vehicle:
         self.departure_time = departure_time
         self.schedule_type = schedule_type
         self.allowed_tracks = allowed_tracks
+        self.allowed_tracks_count = allowed_tracks_count
 
         self.assigned_track = None
         self.assigned_position = None

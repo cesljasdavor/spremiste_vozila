@@ -63,11 +63,11 @@ class ProblemParser(object):
 
             # Blocked tracks
             for line in file.readlines():
-                tmp_track = line.strip().split(' ')
-                self.problem.tracks_blocked_by[tmp_track[0]] = tmp_track[1:]
+                track_data = line.strip().split(' ')
+                self.problem.tracks_blocked_by_dict[track_data[0]] = track_data[1:]
 
-                for track in tmp_track[1:]:
-                    if track in self.problem.blocking_tracks:
-                        self.problem.blocking_tracks[track].append(tmp_track[0])
+                for track in track_data[1:]:
+                    if track in self.problem.blocking_tracks_dict:
+                        self.problem.blocking_tracks_dict[track].append(track_data[0])
                     else:
-                        self.problem.blocking_tracks[track] = [tmp_track[0]]
+                        self.problem.blocking_tracks_dict[track] = [track_data[0]]
