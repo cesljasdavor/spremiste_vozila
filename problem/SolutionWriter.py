@@ -9,9 +9,10 @@ class SolutionWriter(object):
         :return: void
         """
 
+        tracks = self.problem.best_tracks if self.problem.best_tracks is not None else self.problem.optimal_tracks
         with open(output_file_name, "w") as f:
             count = 0
-            for track in self.problem.best_tracks:
+            for track in tracks:
                 out = ""
                 for vehicle in track.vehicles:
                     out += str(vehicle.vehicle_id) + " "

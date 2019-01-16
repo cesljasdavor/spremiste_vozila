@@ -30,7 +30,11 @@ def main():
             solutions_count += 1
 
     print("Solutions count", solutions_count)
-    print("Best: ", problem.best_gg1, problem.best_gg2)
+    if problem.best_tracks is not None:
+        print("Best: ", problem.best_gg1, problem.best_gg2)
+    else:
+        print("Optimal: ", problem.optimal_gg1, problem.optimal_gg2)
+    print("Invocation count", problem.grader.invocation_count)
     output_file_name = get_output_file_name(minutes, problem_file)
     writer = SolutionWriter(problem)
     writer.write(output_file_name)

@@ -22,9 +22,16 @@ class Problem:
         self.track_lengths = []
         self.tracks_blocked_by = {}
         self.blocking_tracks = {}
+
+        self.grader = ProblemGrader(self)
+
         self.best_gg1 = sys.maxsize
         self.best_gg2 = -sys.maxsize - 1
         self.best_tracks = None
+
+        self.optimal_gg1 = sys.maxsize
+        self.optimal_gg2 = -sys.maxsize - 1
+        self.optimal_tracks = None
 
     def make_objects(self):
         """
@@ -73,7 +80,6 @@ class Problem:
         :return: void
         """
 
-        grader = ProblemGrader(self)
         tracks_copy = self.tracks.copy()
         vehicles_sorted = sorted(self.vehicles, key=lambda x: x.departure_time)
 
@@ -87,9 +93,9 @@ class Problem:
             for vehicle in vehicles_sorted:
                 for track in tracks_copy:
                     if track.add_vehicle(vehicle, self.tracks):
-                        grader.reinitialize_grader()
-                        goal1 = grader.calculate_first_global_goal()
-                        goal2 = grader.calculate_second_global_goal()
+                        self.grader.reinitialize_grader()
+                        goal1 = self.grader.calculate_first_global_goal()
+                        goal2 = self.grader.calculate_second_global_goal()
                         ratio = goal2 / goal1
                         if ratio > best_ratio:
                             best_ratio = ratio
@@ -103,11 +109,18 @@ class Problem:
                 best_track.add_vehicle(best_vehicle, self.tracks)
                 vehicles_sorted.remove(best_vehicle)
             else:
+                self.grader.reinitialize_grader()
+                goal1 = self.grader.calculate_first_global_goal()
+                goal2 = self.grader.calculate_second_global_goal()
+                if goal1 < self.optimal_gg1 and goal2 > self.optimal_gg2:
+                    self.optimal_gg1 = goal1
+                    self.optimal_gg2 = goal2
+                    self.optimal_tracks = self.tracks
                 return False
 
-        grader.reinitialize_grader()
-        goal1 = grader.calculate_first_global_goal()
-        goal2 = grader.calculate_second_global_goal()
+        self.grader.reinitialize_grader()
+        goal1 = self.grader.calculate_first_global_goal()
+        goal2 = self.grader.calculate_second_global_goal()
         print("Success:", goal1, goal2)
         if goal1 < self.best_gg1 and goal2 > self.best_gg2:
             self.best_gg1 = goal1

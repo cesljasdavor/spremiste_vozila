@@ -2,8 +2,7 @@ class ProblemGrader(object):
     def __init__(self, problem):
         self.problem = problem
         self.used_count = 0
-
-        self.reinitialize_grader()
+        self.invocation_count = 0
 
     def reinitialize_grader(self):
         self.used_count = 0
@@ -24,6 +23,7 @@ class ProblemGrader(object):
         Calculates first subgoal of first global goal
         :return: first subgoal of first global goal
         """
+        self.invocation_count += 1
 
         p1 = 1 / (self.used_count - 1) if self.used_count > 1 else 1
 
